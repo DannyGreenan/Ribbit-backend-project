@@ -1,6 +1,14 @@
 # Northcoders News API
 
-When cloning this project you will need to create two .env files for your project: .env.test and .env.development. Into each, add PGDATABASE=, with the correct database name for that environment (see /db/setup.sql for the database names). Double check that these .env files are .gitignored.
+//add an intro here
+
+---
+
+When cloning this project you will need to create two .env files for your project: .env.test and .env.development. Into env.development add PGDATABASE=nc_news, into env.test add PGDATABASE=nc_news_test
+
+run npm install to install all libaries listed in the package.JSON
+
+to set up the database run 'npm run setup-dbs' and 'npm run seed'
 
 ---
 
