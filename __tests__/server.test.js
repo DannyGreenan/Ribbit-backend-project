@@ -11,10 +11,6 @@ afterAll(() => {
   return db.end();
 });
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
-
 describe("backend API project", () => {
   describe("general error tests", () => {
     test("that it should return a 404 for a non-existing route", () => {
@@ -45,6 +41,29 @@ describe("backend API project", () => {
 
       const methodPromises = invalidMethods.map((method) => {
         return request(app)[method]("/api/topics").expect(405);
+      });
+      return Promise.all(methodPromises);
+    });
+  });
+  describe("GET /api", () => {
+    test("that a GET request to /api responds with an array of all the available endpoints", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body);
+          expect(typeof body.endPoints).toBe("object");
+          expect(body.endPoints["GET /api"]).toHaveProperty(
+            "description",
+            expect.any(String)
+          );
+        });
+    });
+    test("that path responds with 405 Method Not Allowed if method type is invalid", () => {
+      const invalidMethods = ["post", "patch", "delete"];
+
+      const methodPromises = invalidMethods.map((method) => {
+        return request(app)[method]("/api").expect(405);
       });
       return Promise.all(methodPromises);
     });
