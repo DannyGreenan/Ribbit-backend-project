@@ -1,11 +1,11 @@
 const express = require("express");
-const { getTopics } = require("./controllers/topic-controllers");
 const app = express();
 const topicsRouter = require("./routers/topics-routers");
+const apiRouter = require("./routers/api-router");
 
 app.use(express.json());
 
-// app.get("/api/topics", getTopics);
+app.use(apiRouter);
 
 app.use(topicsRouter);
 
