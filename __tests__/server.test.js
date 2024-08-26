@@ -11,6 +11,10 @@ afterAll(() => {
   return db.end();
 });
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 describe("backend API project", () => {
   describe("general error tests", () => {
     test("that it should return a 404 for a non-existing route", () => {
@@ -28,11 +32,21 @@ describe("backend API project", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body }) => {
+          expect(Array.isArray(body.topics)).toBe(true);
+          expect(body.topics.length).toBeGreaterThan(0);
           body.topics.forEach((topic) => {
             expect(topic).toHaveProperty("description", expect.any(String));
             expect(topic).toHaveProperty("slug", expect.any(String));
           });
         });
+    });
+    test("that path responds with 405 Method Not Allowed if method type is invalid", () => {
+      const invalidMethods = ["post", "patch", "delete"];
+
+      const methodPromises = invalidMethods.map((method) => {
+        return request(app)[method]("/api/topics").expect(405);
+      });
+      return Promise.all(methodPromises);
     });
   });
 });
