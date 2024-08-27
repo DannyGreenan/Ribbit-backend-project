@@ -147,4 +147,56 @@ describe("backend API project", () => {
         });
     });
   });
+  describe("GET /api/articles/:article_id/comments", () => {
+    test("that a GET request to /api/articles/:article_id/comments returns an array of comments from the given article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          body.comments.forEach((comment) => {
+            expect(comment).toHaveProperty("comment_id", expect.any(Number));
+            expect(comment).toHaveProperty("votes", expect.any(Number));
+            expect(comment).toHaveProperty("created_at", expect.any(String));
+            expect(comment).toHaveProperty("author", expect.any(String));
+            expect(comment).toHaveProperty("body", expect.any(String));
+            expect(comment).toHaveProperty("article_id", 1);
+          });
+        });
+    });
+
+    test("that the comments are ordered by created_at by default in descending order", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+    test("that path responds with 405 Method Not Allowed if method type is invalid", () => {
+      const invalidMethods = ["post", "patch", "delete"];
+
+      const methodPromises = invalidMethods.map((method) => {
+        return request(app)[method]("/api/articles/1/comments").expect(405);
+      });
+      return Promise.all(methodPromises);
+    });
+    test("that a GET request to /api/articles/:article_id/comments with a correct id that does not exist responds with 404 Comments not found", () => {
+      return request(app)
+        .get("/api/articles/7/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comments not found");
+        });
+    });
+    test("that a GET request to /api/articles/:article_id/comments with a incorrect id type responds with a 400 Bad Request", () => {
+      return request(app)
+        .get("/api/articles/badrequest/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
 });
