@@ -112,4 +112,39 @@ describe("backend API project", () => {
         });
     });
   });
+  describe("GET /api/articles", () => {
+    test("that a GET request to /api/articles returns an array of article objects with the correct properties", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.articles)).toBe(true);
+          expect(body.articles.length).toBeGreaterThan(0);
+          body.articles.forEach((article) => {
+            expect(article).toHaveProperty("author", expect.any(String));
+            expect(article).toHaveProperty("title", expect.any(String));
+            expect(article).toHaveProperty("article_id", expect.any(Number));
+            expect(article).toHaveProperty("topic", expect.any(String));
+            expect(article).toHaveProperty("created_at", expect.any(String));
+            expect(article).toHaveProperty("votes", expect.any(Number));
+            expect(article).toHaveProperty(
+              "article_img_url",
+              expect.any(String)
+            );
+            expect(article).toHaveProperty("comment_count", expect.any(String));
+            expect(article).not.toHaveProperty("body");
+          });
+        });
+    });
+    test("that the articles are ordered by created_at by default", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+  });
 });
