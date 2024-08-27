@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const topicsRouter = require("./routers/topics-routers");
 const apiRouter = require("./routers/api-router");
-const getArticleByIdRouter = require("./routers/article-routers");
+const getArticlesRouter = require("./routers/article-routers");
 
 app.use(express.json());
 
@@ -10,7 +10,7 @@ app.use(apiRouter);
 
 app.use(topicsRouter);
 
-app.use(getArticleByIdRouter);
+app.use(getArticlesRouter);
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
