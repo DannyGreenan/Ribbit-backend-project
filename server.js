@@ -13,11 +13,19 @@ app.use(topicsRouter);
 app.use(getArticleByIdRouter);
 
 app.use((err, req, res, next) => {
-  // console.log(err, "<-- Middleware caught error");
-  if (err.msg === "Article not found")
+  if (err.code === "22P02") {
+    res.status(400).send({ msg: "Bad request" });
+  } else next(err);
+});
+
+app.use((err, req, res, next) => {
+  if (err.status === 404) {
     res.status(404).send({ msg: "Article not found" });
-  if (err.msg === "Bad request") res.status(400).send({ msg: "Bad request" });
-  next();
+  } else next();
+});
+
+app.use((err, req, res, next) => {
+  console.log(err, "<-- Middleware caught error");
 });
 
 module.exports = app;
