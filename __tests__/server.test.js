@@ -51,7 +51,6 @@ describe("backend API project", () => {
         .get("/api")
         .expect(200)
         .then(({ body }) => {
-          console.log(body);
           expect(typeof body.endPoints).toBe("object");
           expect(body.endPoints["GET /api"]).toHaveProperty(
             "description",
@@ -66,6 +65,51 @@ describe("backend API project", () => {
         return request(app)[method]("/api").expect(405);
       });
       return Promise.all(methodPromises);
+    });
+  });
+  describe("GET /api/articles/:article_id", () => {
+    test("that a GET request to /api/articles/:article_id responds with the correct article object", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(typeof body.article).toBe("object");
+          expect(body.article).toHaveProperty("author", expect.any(String));
+          expect(body.article).toHaveProperty("title", expect.any(String));
+          expect(body.article).toHaveProperty("article_id", expect.any(Number));
+          expect(body.article).toHaveProperty("body", expect.any(String));
+          expect(body.article).toHaveProperty("topic", expect.any(String));
+          expect(body.article).toHaveProperty("created_at", expect.any(String));
+          expect(body.article).toHaveProperty("votes", expect.any(Number));
+          expect(body.article).toHaveProperty(
+            "article_img_url",
+            expect.any(String)
+          );
+        });
+    });
+    test("that path responds with 405 Method Not Allowed if method type is invalid", () => {
+      const invalidMethods = ["post", "patch", "delete"];
+
+      const methodPromises = invalidMethods.map((method) => {
+        return request(app)[method]("/api").expect(405);
+      });
+      return Promise.all(methodPromises);
+    });
+    test("that a GET request to /api/articles/:article_id with a correct id that does not exist responds with 404 Article not found", () => {
+      return request(app)
+        .get("/api/articles/2024")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
+        });
+    });
+    test("that a GET request to /api/articles/:article_id with a incorrect id type responds with a 400 Bad Request", () => {
+      return request(app)
+        .get("/api/articles/badrequest")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
     });
   });
 });
