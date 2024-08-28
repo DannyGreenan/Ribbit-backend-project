@@ -220,7 +220,7 @@ describe("backend API project", () => {
           expect(body.comment).toHaveProperty("created_at", expect.any(String));
         });
     });
-    test("that a POST request with a body that does not contain the correct fields returns 404 Bad request", () => {
+    test("that a POST request with a body that does not contain the correct fields returns 400 Bad request", () => {
       return request(app)
         .post("/api/articles/1/comments")
         .send({})
@@ -229,7 +229,7 @@ describe("backend API project", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("that a POST request with a body of valid inputs but the value of a field is invalid returns 404 Bad request", () => {
+    test("that a POST request with a body containing a username that is valid but does not exist returns 404 Bad request", () => {
       return request(app)
         .post("/api/articles/7/comments")
         .send({
@@ -241,7 +241,7 @@ describe("backend API project", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("that a POST request to a article that does not exist returns 404 Article not found", () => {
+    test("that a POST request to a article that does not exist but is valid returns 404 Article not found", () => {
       return request(app)
         .post("/api/articles/61/comments")
         .send({
@@ -251,6 +251,18 @@ describe("backend API project", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("Article not found");
+        });
+    });
+    test("that a POST request to a article that is not a valid input returns 400 Bad request", () => {
+      return request(app)
+        .post("/api/articles/badrequest/comments")
+        .send({
+          username: "butter_bridge",
+          body: "Just posted my first comment !",
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
