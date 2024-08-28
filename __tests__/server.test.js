@@ -175,7 +175,7 @@ describe("backend API project", () => {
         });
     });
     test("that path responds with 405 Method Not Allowed if method type is invalid", () => {
-      const invalidMethods = ["post", "patch", "delete"];
+      const invalidMethods = ["patch", "delete"];
 
       const methodPromises = invalidMethods.map((method) => {
         return request(app)[method]("/api/articles/1/comments").expect(405);
@@ -196,6 +196,61 @@ describe("backend API project", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("that a POST request responds with the posted comment", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({
+          username: "butter_bridge",
+          body: "Just posted my first comment !",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.comment).toHaveProperty("author", "butter_bridge");
+          expect(body.comment).toHaveProperty(
+            "body",
+            "Just posted my first comment !"
+          );
+          expect(body.comment).toHaveProperty("votes", 0);
+          expect(body.comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("article_id", 1);
+          expect(body.comment).toHaveProperty("created_at", expect.any(String));
+        });
+    });
+    test("that a POST request with a body that does not contain the correct fields returns 404 Bad request", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("that a POST request with a body of valid inputs but the value of a field is invalid returns 404 Bad request", () => {
+      return request(app)
+        .post("/api/articles/7/comments")
+        .send({
+          username: "sathice",
+          body: "are you throwing up furballs ?",
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("that a POST request to a article that does not exist returns 404 Article not found", () => {
+      return request(app)
+        .post("/api/articles/61/comments")
+        .send({
+          username: "butter_bridge",
+          body: "Just posted my first comment !",
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
         });
     });
   });
