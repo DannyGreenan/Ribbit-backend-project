@@ -67,5 +67,19 @@
       }
     },
     "exampleBody": { "username": "username", "body": "comment " }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates the given articles votes number by the body given",
+    "exampleResponse": {
+      " comment": {
+        "comment_id": 19,
+        " body": "Just posted my first comment !",
+        "article_id": 1,
+        "author": "butter_bridge",
+        "votes": 101,
+        "created_at": "2024-08-28T09:18:37.497Z"
+      }
+    },
+    "exampleBody": { "inc_votes": 1 }
   }
 }

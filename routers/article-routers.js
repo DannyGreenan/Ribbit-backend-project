@@ -6,11 +6,13 @@ const {
   getAllArticles,
   getArticlesComments,
   postArticleComment,
+  patchArticle,
 } = require("../controllers/article-controllers");
 
 router
   .route("/api/articles/:article_id")
   .get(getArticleById)
+  .patch(patchArticle)
   .all(handleInvalidMethod);
 
 router.route("/api/articles").get(getAllArticles).all(handleInvalidMethod);
