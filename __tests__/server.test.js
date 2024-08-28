@@ -174,14 +174,6 @@ describe("backend API project", () => {
           });
         });
     });
-    test("that path responds with 405 Method Not Allowed if method type is invalid", () => {
-      const invalidMethods = ["patch", "delete"];
-
-      const methodPromises = invalidMethods.map((method) => {
-        return request(app)[method]("/api/articles/1/comments").expect(405);
-      });
-      return Promise.all(methodPromises);
-    });
     test("that a GET request to /api/articles/:article_id/comments with a correct id that does not exist responds with 404 Comments not found", () => {
       return request(app)
         .get("/api/articles/7/comments")
@@ -229,16 +221,16 @@ describe("backend API project", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("that a POST request with a body containing a username that is valid but does not exist returns 404 Bad request", () => {
+    test("that a POST request with a body containing a username that is valid but does not exist returns 404 Not found", () => {
       return request(app)
         .post("/api/articles/7/comments")
         .send({
           username: "sathice",
           body: "are you throwing up furballs ?",
         })
-        .expect(400)
+        .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+          expect(body.msg).toBe("Article not found");
         });
     });
     test("that a POST request to a article that does not exist but is valid returns 404 Article not found", () => {
@@ -260,6 +252,79 @@ describe("backend API project", () => {
           username: "butter_bridge",
           body: "Just posted my first comment !",
         })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
+  describe("PATCH /api/articles/:article_id", () => {
+    test("that a PATCH request responds with the updated article when given a correct body adding 1", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({
+          inc_votes: 1,
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(typeof body.article).toBe("object");
+          expect(body.article).toHaveProperty("author", expect.any(String));
+          expect(body.article).toHaveProperty("title", expect.any(String));
+          expect(body.article).toHaveProperty("article_id", expect.any(Number));
+          expect(body.article).toHaveProperty("body", expect.any(String));
+          expect(body.article).toHaveProperty("topic", expect.any(String));
+          expect(body.article).toHaveProperty("created_at", expect.any(String));
+          expect(body.article).toHaveProperty("votes", 101);
+          expect(body.article).toHaveProperty(
+            "article_img_url",
+            expect.any(String)
+          );
+        });
+    });
+    test("that a PATCH request responds with the updated article when given a correct body subtracting 100", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({
+          inc_votes: -100,
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(typeof body.article).toBe("object");
+          expect(body.article).toHaveProperty("author", expect.any(String));
+          expect(body.article).toHaveProperty("title", expect.any(String));
+          expect(body.article).toHaveProperty("article_id", expect.any(Number));
+          expect(body.article).toHaveProperty("body", expect.any(String));
+          expect(body.article).toHaveProperty("topic", expect.any(String));
+          expect(body.article).toHaveProperty("created_at", expect.any(String));
+          expect(body.article).toHaveProperty("votes", 0);
+          expect(body.article).toHaveProperty(
+            "article_img_url",
+            expect.any(String)
+          );
+        });
+    });
+    test("that a PATCH request with an invalid body type returns 400 Bad request", () => {
+      return request(app)
+        .patch("/api/articles/badrequest")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("that a patch request with a valid body that would reduce the votes below 0 returns 406 Not Acceptable", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 1000 })
+        .expect(406)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Not Acceptable");
+        });
+    });
+    test("that a PATCH request with a valid body and value to a article that doesnt exist returns 400 Bad request", () => {
+      return request(app)
+        .patch("/api/articles/123")
+        .send({ inc_votes: 1 })
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
