@@ -2,6 +2,7 @@ const {
   articleById,
   returnArticles,
   returnsArticlesComments,
+  postNewComment,
 } = require("../models/article-models");
 
 exports.getArticleById = (req, res, next) => {
@@ -37,6 +38,18 @@ exports.getArticlesComments = (req, res, next) => {
     });
 };
 
+exports.postArticleComment = (req, res, next) => {
+  const { article_id } = req.params;
+  const { username, body } = req.body;
+
+  postNewComment(article_id, username, body)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err, req);
+    });
+};
 exports.handleInvalidMethod = (req, res) => {
   res.set("allow", "GET");
   res.status(405).send({ msg: "Method Not Allowed" });

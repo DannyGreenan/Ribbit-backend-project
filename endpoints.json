@@ -53,5 +53,19 @@
       " body": "Delicious crackerbreads",
       " article_id": 1
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a new comment to the comments table with the id of the parameter article",
+    "parameter": ["number of article"],
+    "exampleResponce": {
+      " comment": {
+        "comment_id": 19,
+        " body": "Just posted my first comment !",
+        "article_id": 1,
+        "author": "butter_bridge",
+        "votes": 0,
+        "created_at": "2024-08-28T09:18:37.497Z"
+      }
+    }
   }
 }
