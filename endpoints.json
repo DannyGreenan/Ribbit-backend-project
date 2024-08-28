@@ -81,5 +81,9 @@
       }
     },
     "exampleBody": { "inc_votes": 1 }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes the given comment not responding with any body",
+    "exampleResponse": { "msg": "deleted comment 'comment_id'" }
   }
 }

@@ -331,4 +331,37 @@ describe("backend API project", () => {
         });
     });
   });
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("that a DELETE request responds with status 204, no content and that the comments have been reduced", async () => {
+      await request(app)
+        .get("/api/articles/9/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBe(2);
+        });
+      await request(app).delete("/api/comments/1").expect(204);
+      await request(app)
+        .get("/api/articles/9/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBe(1);
+        });
+    });
+    test("that a DELETE request that has a valid number but doesn't exist in the table returns 404 Not found", () => {
+      return request(app)
+        .delete("/api/comments/1234")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment not found");
+        });
+    });
+    test("that a DELETE request to a comment that is not valid returns 400 Bad request", () => {
+      return request(app)
+        .delete("/api/comments/badrequest")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
 });
