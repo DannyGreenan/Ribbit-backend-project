@@ -364,4 +364,28 @@ describe("backend API project", () => {
         });
     });
   });
+  describe("GET /api/users", () => {
+    test("that a GET request responds with an array of objects each with the correct properties", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.users)).toBe(true);
+          expect(body.users.length).toBeGreaterThan(0);
+          body.users.forEach((user) => {
+            expect(user).toHaveProperty("username", expect.any(String));
+            expect(user).toHaveProperty("name", expect.any(String));
+            expect(user).toHaveProperty("avatar_url", expect.any(String));
+          });
+        });
+    });
+    test("that a GET request to wrong path will return a 404 for a non-existing route", () => {
+      return request(app)
+        .get("/api/not-a-route")
+        .expect(404)
+        .then((error) => {
+          expect(error.text).toContain("Cannot GET /api/not-a-route");
+        });
+    });
+  });
 });
