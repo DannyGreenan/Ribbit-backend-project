@@ -38,7 +38,6 @@ app.use((err, req, res, next) => {
   if (err.status === 406) {
     res.status(406).send({ msg: "Not Acceptable" });
   }
-  console.log(err, "<-- Middleware caught error");
   next(err);
 });
 

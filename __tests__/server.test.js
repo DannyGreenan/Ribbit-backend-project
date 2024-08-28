@@ -174,12 +174,12 @@ describe("backend API project", () => {
           });
         });
     });
-    test("that a GET request to /api/articles/:article_id/comments with a correct id that does not exist responds with 404 Comments not found", () => {
+    test("that a GET request to /api/articles/:article_id/comments with a correct id that does not have any comments returns an empty array", () => {
       return request(app)
         .get("/api/articles/7/comments")
-        .expect(404)
+        .expect(200)
         .then(({ body }) => {
-          expect(body.msg).toBe("Comments not found");
+          expect(body.comments).toEqual([]);
         });
     });
     test("that a GET request to /api/articles/:article_id/comments with a incorrect id type responds with a 400 Bad Request", () => {
