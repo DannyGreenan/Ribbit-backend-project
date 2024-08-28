@@ -4,6 +4,7 @@ const topicsRouter = require("./routers/topics-routers");
 const apiRouter = require("./routers/api-router");
 const getArticlesRouter = require("./routers/article-routers");
 const commentRouter = require("./routers/comment-routers");
+const userRouter = require("./routers/user-routers");
 
 app.use(express.json());
 
@@ -14,6 +15,8 @@ app.use(topicsRouter);
 app.use(getArticlesRouter);
 
 app.use(commentRouter);
+
+app.use(userRouter);
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02" || err.status === 400) {
@@ -46,9 +49,9 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-app.use((err, req, res, next) => {
-  console.log(err, "Middleware caught error");
-  next(err);
-});
+// app.use((err, req, res, next) => {
+//   console.log(err, "Middleware caught error");
+//   next(err);
+// });
 
 module.exports = app;
