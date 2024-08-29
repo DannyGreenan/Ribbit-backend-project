@@ -5,6 +5,7 @@ const {
   postNewComment,
   patchArticleById,
 } = require("../models/article-models");
+const { getAllTopics } = require("../models/topic-models");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -19,7 +20,22 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  returnArticles(req.query)
+  const { topic } = req.query;
+
+  getAllTopics()
+    .then((topics) => {
+      const foundTopic = topics.find((topicObj) => topicObj.slug === topic);
+      if (topic === undefined) {
+        return undefined;
+      } else {
+        if (foundTopic) {
+          return foundTopic.slug;
+        } else return Promise.reject({ status: 400, msg: "Bad request" });
+      }
+    })
+    .then(() => {
+      return returnArticles(req.query);
+    })
     .then((articles) => {
       res.status(200).send({ articles });
     })
