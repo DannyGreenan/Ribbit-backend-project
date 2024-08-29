@@ -87,7 +87,7 @@ describe("backend API project", () => {
           );
         });
     });
-    test("200: that a GET request to /api/articles/artiicle_id responds with an object that includes a comment_count", () => {
+    test("200: that a GET request to /api/articles/article_id responds with an object that includes a comment_count", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
