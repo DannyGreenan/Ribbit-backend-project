@@ -10,17 +10,13 @@ The /api endpoint serves as the API documentation, providing a comprehensive ove
 
 ### How to clone
 
-    ```bash
     git clone https://github.com/DannyGreenan/backend-project.git
-    ```
 
 ### Install Dependencies
 
     run npm install to install all libaries listed in the package.JSON
 
-    ```bash
     npm install
-    ```
 
 ### Create environment variables
 
@@ -30,18 +26,14 @@ The /api endpoint serves as the API documentation, providing a comprehensive ove
 
     to set up the database run 'npm run setup-dbs' and 'npm run seed'
 
-    ```
     npm run setup-dbs
     npm run seed
-    ```
 
 ### How to Run Tests
 
     To run tests, use the following command:
 
-    ```
     npm test
-    ```
 
 ### minimum versions
 
