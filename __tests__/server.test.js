@@ -113,7 +113,7 @@ describe("backend API project", () => {
     });
   });
   describe("GET /api/articles", () => {
-    test("that a GET request to /api/articles returns an array of article objects with the correct properties", () => {
+    test("200: that a GET request to /api/articles returns an array of article objects with the correct properties", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -136,7 +136,7 @@ describe("backend API project", () => {
           });
         });
     });
-    test("that the articles are ordered by created_at by default", () => {
+    test("200: that the articles are ordered by created_at by default", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -146,7 +146,7 @@ describe("backend API project", () => {
           });
         });
     });
-    test("that the articles are ordered by votes in  desc order when given a sort_by of votes and no order query", () => {
+    test("200: that the articles are ordered by votes in  desc order when given a sort_by of votes and no order query", () => {
       return request(app)
         .get("/api/articles?sort_by=votes")
         .expect(200)
@@ -156,7 +156,7 @@ describe("backend API project", () => {
           expect(body.articles).toBeSortedBy("votes", { descending: true });
         });
     });
-    test("that the articles are ordered by titles and in asc order when given a sort_by of titles and a order of asc", () => {
+    test("200: that the articles are ordered by titles and in asc order when given a sort_by of titles and a order of asc", () => {
       return request(app)
         .get("/api/articles?sort_by=title&order=asc")
         .expect(200)
@@ -164,7 +164,19 @@ describe("backend API project", () => {
           expect(body.articles).toBeSortedBy("title");
         });
     });
-    test("that a GET request with a sort_by that is not valid returns 400 Bad request", () => {
+    test("200: that a GET request with a topic query returns an array of article objects with the correct topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.articles)).toBe(true);
+          expect(body.articles.length).toBeGreaterThan(0);
+          body.articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+    test("400: that a GET request with a sort_by that is not valid returns 400 Bad request", () => {
       return request(app)
         .get("/api/articles?sort_by=badrequest")
         .expect(400)
@@ -172,9 +184,17 @@ describe("backend API project", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("that a GET request with a order that is not valid returns 400 Bad request", () => {
+    test("400: that a GET request with a order that is not valid returns 400 Bad request", () => {
       return request(app)
         .get("/api/articles?order=badrequest")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("400: that a GET request with a topic that is not valid returns 400 Bad request", () => {
+      return request(app)
+        .get("/api/articles?topic=badrequest")
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
