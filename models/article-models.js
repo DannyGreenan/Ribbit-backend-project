@@ -15,9 +15,7 @@ exports.articleById = (article_id, comment_count) => {
     });
 };
 
-exports.returnArticles = (query) => {
-  const { sort_by, order, topic } = query;
-
+exports.returnArticles = (sort_by, order, topic) => {
   const allowedSortInputs = [
     "title",
     "topic",
@@ -31,17 +29,23 @@ exports.returnArticles = (query) => {
     return Promise.reject({ status: 400, msg: "Bad request" });
   }
 
-  if (order && order !== "desc" && order !== "asc") {
-    return Promise.reject({ status: 400, msg: "Bad request" });
+  if (order) {
+    order = order.toLowerCase();
+    if (order !== "desc" && order !== "asc") {
+      return Promise.reject({ status: 400, msg: "Bad request" });
+    }
   }
 
   let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
+  let queryValues = [];
+
   if (topic) {
-    queryStr += ` WHERE articles.topic = '${topic}' GROUP BY articles.article_id`;
-  } else {
-    queryStr += ` GROUP BY articles.article_id`;
+    queryValues.push(topic);
+    queryStr += ` WHERE articles.topic = $1`;
   }
+
+  queryStr += ` GROUP BY articles.article_id`;
 
   if (sort_by) {
     queryStr += ` ORDER BY articles.${sort_by}`;
@@ -55,7 +59,7 @@ exports.returnArticles = (query) => {
     queryStr += ` DESC`;
   }
 
-  return db.query(`${queryStr}`).then(({ rows }) => {
+  return db.query(`${queryStr}`, queryValues).then(({ rows }) => {
     return rows;
   });
 };

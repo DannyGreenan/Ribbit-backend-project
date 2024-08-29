@@ -164,12 +164,12 @@ describe("backend API project", () => {
           expect(body.articles).toBeSortedBy("votes", { descending: true });
         });
     });
-    test("200: that the articles are ordered by titles and in asc order when given a sort_by of titles and a order of asc", () => {
+    test("200: that the articles are in asc order when given an order of ASC", () => {
       return request(app)
-        .get("/api/articles?sort_by=title&order=asc")
+        .get("/api/articles?order=ASC")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("title");
+          expect(body.articles).toBeSortedBy("created_at");
         });
     });
     test("200: that a GET request with a topic query returns an array of article objects with the correct topic", () => {
@@ -182,6 +182,14 @@ describe("backend API project", () => {
           body.articles.forEach((article) => {
             expect(article.topic).toBe("mitch");
           });
+        });
+    });
+    test("200: that a GET request with a topic query that has no articles returns an empty array", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toEqual([]);
         });
     });
     test("400: that a GET request with a sort_by that is not valid returns 400 Bad request", () => {
