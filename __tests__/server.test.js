@@ -469,4 +469,27 @@ describe("backend API project", () => {
         });
     });
   });
+  describe("GET /api/users/:username", () => {
+    test("200: that a request with a valid username returns an object of the correct user", () => {
+      return request(app)
+        .get("/api/users/lurker")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.user).toHaveProperty("username", "lurker");
+          expect(body.user).toHaveProperty("name", "do_nothing");
+          expect(body.user).toHaveProperty(
+            "avatar_url",
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+          );
+        });
+    });
+    test("404: that a request with a valid username that cannot be found returns 404 User not found", () => {
+      return request(app)
+        .get("/api/users/dampsquid")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User not found");
+        });
+    });
+  });
 });
