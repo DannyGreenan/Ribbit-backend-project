@@ -55,10 +55,14 @@ exports.patchArticle = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
 
-  patchArticleById(article_id, inc_votes)
+  articleById(article_id)
+    .then(() => {
+      return patchArticleById(article_id, inc_votes);
+    })
     .then((article) => {
       res.status(201).send({ article });
     })
+
     .catch((err) => {
       next(err);
     });

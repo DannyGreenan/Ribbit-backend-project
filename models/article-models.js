@@ -79,26 +79,15 @@ exports.postNewComment = (article_id, username, body) => {
 };
 
 exports.patchArticleById = (article_id, inc_votes) => {
+  if (!inc_votes) {
+    inc_votes = 0;
+  }
   return db
-    .query(`SELECT * FROM articles WHERE articles.article_id = $1`, [
-      article_id,
-    ])
+    .query(
+      `UPDATE articles SET votes = votes + $1 WHERE articles.article_id = $2 RETURNING *`,
+      [inc_votes, article_id]
+    )
     .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({ status: 400, msg: "Bad request" });
-      }
-      if (inc_votes > rows[0].votes) {
-        return Promise.reject({ status: 406, msg: "Not Acceptable" });
-      }
-    })
-    .then(() => {
-      return db
-        .query(
-          `UPDATE articles SET votes = votes + $1 WHERE articles.article_id = $2 RETURNING *`,
-          [inc_votes, article_id]
-        )
-        .then(({ rows }) => {
-          return rows[0];
-        });
+      return rows[0];
     });
 };

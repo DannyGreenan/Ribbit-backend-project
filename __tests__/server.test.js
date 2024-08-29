@@ -293,7 +293,7 @@ describe("backend API project", () => {
     });
   });
   describe("PATCH /api/articles/:article_id", () => {
-    test("that a PATCH request responds with the updated article when given a correct body adding 1", () => {
+    test("201: that a PATCH request responds with the updated article when given a correct body adding 1", () => {
       return request(app)
         .patch("/api/articles/1")
         .send({
@@ -315,7 +315,7 @@ describe("backend API project", () => {
           );
         });
     });
-    test("that a PATCH request responds with the updated article when given a correct body subtracting 100", () => {
+    test("201: that a PATCH request responds with the updated article when given a correct body subtracting 100", () => {
       return request(app)
         .patch("/api/articles/1")
         .send({
@@ -337,7 +337,26 @@ describe("backend API project", () => {
           );
         });
     });
-    test("that a PATCH request with an invalid body type returns 400 Bad request", () => {
+    test("201 that a PATCH request with no body returns the original article with no change to votes", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .expect(201)
+        .then(({ body }) => {
+          expect(typeof body.article).toBe("object");
+          expect(body.article).toHaveProperty("author", expect.any(String));
+          expect(body.article).toHaveProperty("title", expect.any(String));
+          expect(body.article).toHaveProperty("article_id", expect.any(Number));
+          expect(body.article).toHaveProperty("body", expect.any(String));
+          expect(body.article).toHaveProperty("topic", expect.any(String));
+          expect(body.article).toHaveProperty("created_at", expect.any(String));
+          expect(body.article).toHaveProperty("votes", 100);
+          expect(body.article).toHaveProperty(
+            "article_img_url",
+            expect.any(String)
+          );
+        });
+    });
+    test("400: that a PATCH request with an invalid id returns 400 Bad request", () => {
       return request(app)
         .patch("/api/articles/badrequest")
         .send({ inc_votes: 1 })
@@ -346,19 +365,19 @@ describe("backend API project", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("that a patch request with a valid body that would reduce the votes below 0 returns 406 Not Acceptable", () => {
-      return request(app)
-        .patch("/api/articles/1")
-        .send({ inc_votes: 1000 })
-        .expect(406)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not Acceptable");
-        });
-    });
-    test("that a PATCH request with a valid body and value to a article that doesnt exist returns 400 Bad request", () => {
+    test("404: that a PATCH request with a valid body and value to a article that doesnt exist returns 404 Article not found", () => {
       return request(app)
         .patch("/api/articles/123")
         .send({ inc_votes: 1 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
+        });
+    });
+    test("400: that a PATCH request with an incorrect body eg. inc_votes is not a number returns 400 Bad request", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "Bad request" })
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
@@ -411,14 +430,6 @@ describe("backend API project", () => {
             expect(user).toHaveProperty("name", expect.any(String));
             expect(user).toHaveProperty("avatar_url", expect.any(String));
           });
-        });
-    });
-    test("that a GET request to wrong path will return a 404 for a non-existing route", () => {
-      return request(app)
-        .get("/api/not-a-route")
-        .expect(404)
-        .then((error) => {
-          expect(error.text).toContain("Cannot GET /api/not-a-route");
         });
     });
   });
