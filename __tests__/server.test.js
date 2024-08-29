@@ -146,6 +146,40 @@ describe("backend API project", () => {
           });
         });
     });
+    test("that the articles are ordered by votes in  desc order when given a sort_by of votes and no order query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.articles)).toBe(true);
+          expect(body.articles.length).toBeGreaterThan(0);
+          expect(body.articles).toBeSortedBy("votes", { descending: true });
+        });
+    });
+    test("that the articles are ordered by titles and in asc order when given a sort_by of titles and a order of asc", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("title");
+        });
+    });
+    test("that a GET request with a sort_by that is not valid returns 400 Bad request", () => {
+      return request(app)
+        .get("/api/articles?sort_by=badrequest")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("that a GET request with a order that is not valid returns 400 Bad request", () => {
+      return request(app)
+        .get("/api/articles?order=badrequest")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
   });
   describe("GET /api/articles/:article_id/comments", () => {
     test("that a GET request to /api/articles/:article_id/comments returns an array of comments from the given article_id", () => {
