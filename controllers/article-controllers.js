@@ -10,7 +10,13 @@ const { getAllTopics } = require("../models/topic-models");
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
 
-  articleById(article_id)
+  returnsArticlesComments(article_id)
+    .then((comments) => {
+      return comments.length;
+    })
+    .then((comment_count) => {
+      return articleById(article_id, comment_count);
+    })
     .then((article) => {
       res.status(200).send({ article });
     })
