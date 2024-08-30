@@ -3,7 +3,7 @@ const app = express();
 
 const topicsRouter = require("./routers/topics-routers");
 const apiRouter = require("./routers/api-router");
-const getArticlesRouter = require("./routers/article-routers");
+const articlesRouter = require("./routers/article-routers");
 const commentRouter = require("./routers/comment-routers");
 const userRouter = require("./routers/user-routers");
 
@@ -15,7 +15,7 @@ app.use(apiRouter);
 
 app.use(topicsRouter);
 
-app.use(getArticlesRouter);
+app.use(articlesRouter);
 
 app.use(commentRouter);
 

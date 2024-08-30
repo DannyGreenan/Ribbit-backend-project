@@ -4,6 +4,7 @@ const {
   returnsArticlesComments,
   postNewComment,
   patchArticleById,
+  postNewArticle,
 } = require("../models/article-models");
 const { getAllTopics } = require("../models/topic-models");
 
@@ -85,6 +86,18 @@ exports.patchArticle = (req, res, next) => {
       res.status(201).send({ article });
     })
 
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postArticle = (req, res, next) => {
+  const { author, title, body, topic, article_img_url } = req.body;
+
+  postNewArticle(author, title, body, topic, article_img_url)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
     .catch((err) => {
       next(err);
     });
