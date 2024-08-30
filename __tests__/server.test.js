@@ -492,4 +492,112 @@ describe("backend API project", () => {
         });
     });
   });
+  describe("PATCH /api/comments/:comment_id", () => {
+    test("201: that a PATCH request responds with the updated comment when given a correct body adding 1", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: 1 })
+        .expect(201)
+        .then(({ body }) => {
+          expect(typeof body.comment).toBe("object");
+          expect(body.comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("body", expect.any(String));
+          expect(body.comment).toHaveProperty("votes", 17);
+          expect(body.comment).toHaveProperty("author", expect.any(String));
+          expect(body.comment).toHaveProperty("article_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("created_at", expect.any(String));
+        });
+    });
+    test("201: that a PATCH request responds with the updated comment when given a correct body subtracting 1", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({
+          inc_votes: -1,
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(typeof body.comment).toBe("object");
+          expect(body.comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("body", expect.any(String));
+          expect(body.comment).toHaveProperty("votes", 15);
+          expect(body.comment).toHaveProperty("author", expect.any(String));
+          expect(body.comment).toHaveProperty("article_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("created_at", expect.any(String));
+        });
+    });
+    test("201 that a PATCH request with no body returns the original article with no change to votes", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({})
+        .expect(201)
+        .then(({ body }) => {
+          expect(typeof body.comment).toBe("object");
+          expect(body.comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("body", expect.any(String));
+          expect(body.comment).toHaveProperty("votes", 16);
+          expect(body.comment).toHaveProperty("author", expect.any(String));
+          expect(body.comment).toHaveProperty("article_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("created_at", expect.any(String));
+        });
+    });
+    test("400: that a PATCH request with an invalid id returns 400 Bad request", () => {
+      return request(app)
+        .patch("/api/comments/badrequest")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("404: that a PATCH request with a valid body and value to a comment that doesnt exist returns 404 Comment not found", () => {
+      return request(app)
+        .patch("/api/comments/123")
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment not found");
+        });
+    });
+    test("400: that a PATCH request with an incorrect body eg. inc_votes is not a number returns 400 Bad request", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: "Bad request" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
+  describe("GET /api/comments/:comment_id", () => {
+    test("200: that a GET request responds with the correct comment object", () => {
+      return request(app)
+        .get("/api/comments/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(typeof body.comment).toBe("object");
+          expect(body.comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("body", expect.any(String));
+          expect(body.comment).toHaveProperty("votes", expect.any(Number));
+          expect(body.comment).toHaveProperty("author", expect.any(String));
+          expect(body.comment).toHaveProperty("article_id", expect.any(Number));
+          expect(body.comment).toHaveProperty("created_at", expect.any(String));
+        });
+    });
+    test("that a GET request with a correct id that does not exist responds with 404 Comment not found", () => {
+      return request(app)
+        .get("/api/comments/2024")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment not found");
+        });
+    });
+    test("that a GET request with a incorrect id type responds with a 400 Bad Request", () => {
+      return request(app)
+        .get("/api/comments/badrequest")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
 });
