@@ -121,144 +121,254 @@ describe("backend API project", () => {
     });
   });
   describe("GET /api/articles", () => {
-    test("200: that a GET request to /api/articles returns an array of article objects with the correct properties", () => {
-      return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({ body }) => {
-          expect(Array.isArray(body.articles)).toBe(true);
-          expect(body.articles.length).toBeGreaterThan(0);
-          body.articles.forEach((article) => {
-            expect(article).toHaveProperty("author", expect.any(String));
-            expect(article).toHaveProperty("title", expect.any(String));
-            expect(article).toHaveProperty("article_id", expect.any(Number));
-            expect(article).toHaveProperty("topic", expect.any(String));
-            expect(article).toHaveProperty("created_at", expect.any(String));
-            expect(article).toHaveProperty("votes", expect.any(Number));
-            expect(article).toHaveProperty(
-              "article_img_url",
-              expect.any(String)
-            );
-            expect(article).toHaveProperty("comment_count", expect.any(String));
-            expect(article).not.toHaveProperty("body");
+    describe("default behaviour tests", () => {
+      test("200: that a GET request to /api/articles returns an array of article objects with the correct properties", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            expect(Array.isArray(body.articles)).toBe(true);
+            expect(body.articles.length).toBeGreaterThan(0);
+            body.articles.forEach((article) => {
+              expect(article).toHaveProperty("author", expect.any(String));
+              expect(article).toHaveProperty("title", expect.any(String));
+              expect(article).toHaveProperty("article_id", expect.any(Number));
+              expect(article).toHaveProperty("topic", expect.any(String));
+              expect(article).toHaveProperty("created_at", expect.any(String));
+              expect(article).toHaveProperty("votes", expect.any(Number));
+              expect(article).toHaveProperty(
+                "article_img_url",
+                expect.any(String)
+              );
+              expect(article).toHaveProperty(
+                "comment_count",
+                expect.any(String)
+              );
+              expect(article).not.toHaveProperty("body");
+            });
           });
-        });
+      });
     });
-    test("200: that the articles are ordered by created_at by default", () => {
-      return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("created_at", {
-            descending: true,
+    describe("sorted and order tests", () => {
+      test("200: that the articles are ordered by created_at by default", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
           });
-        });
-    });
-    test("200: that the articles are ordered by votes in  desc order when given a sort_by of votes and no order query", () => {
-      return request(app)
-        .get("/api/articles?sort_by=votes")
-        .expect(200)
-        .then(({ body }) => {
-          expect(Array.isArray(body.articles)).toBe(true);
-          expect(body.articles.length).toBeGreaterThan(0);
-          expect(body.articles).toBeSortedBy("votes", { descending: true });
-        });
-    });
-    test("200: that the articles are in asc order when given an order of ASC", () => {
-      return request(app)
-        .get("/api/articles?order=ASC")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles).toBeSortedBy("created_at");
-        });
-    });
-    test("200: that a GET request with a topic query returns an array of article objects with the correct topic", () => {
-      return request(app)
-        .get("/api/articles?topic=mitch")
-        .expect(200)
-        .then(({ body }) => {
-          expect(Array.isArray(body.articles)).toBe(true);
-          expect(body.articles.length).toBeGreaterThan(0);
-          body.articles.forEach((article) => {
-            expect(article.topic).toBe("mitch");
+      });
+      test("200: that the articles are ordered by votes in desc order when given a sort_by of votes and no order query", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes")
+          .expect(200)
+          .then(({ body }) => {
+            expect(Array.isArray(body.articles)).toBe(true);
+            expect(body.articles.length).toBeGreaterThan(0);
+            expect(body.articles).toBeSortedBy("votes", { descending: true });
           });
-        });
+      });
+      test("200: that the articles are in asc order when given an order of ASC", () => {
+        return request(app)
+          .get("/api/articles?order=ASC")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toBeSortedBy("created_at");
+          });
+      });
+      test("400: that a GET request with a sort_by that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles?sort_by=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+      test("400: that a GET request with a order that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles?order=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
     });
-    test("200: that a GET request with a topic query that has no articles returns an empty array", () => {
-      return request(app)
-        .get("/api/articles?topic=paper")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles).toEqual([]);
-        });
+    describe("topic query tests", () => {
+      test("200: that a GET request with a topic query returns an array of article objects with the correct topic", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            expect(Array.isArray(body.articles)).toBe(true);
+            expect(body.articles.length).toBeGreaterThan(0);
+            body.articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+          });
+      });
+      test("200: that a GET request with a topic query that has no articles returns an empty array", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toEqual([]);
+          });
+      });
+      test("400: that a GET request with a topic that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles?topic=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
     });
-    test("400: that a GET request with a sort_by that is not valid returns 400 Bad request", () => {
-      return request(app)
-        .get("/api/articles?sort_by=badrequest")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
-    test("400: that a GET request with a order that is not valid returns 400 Bad request", () => {
-      return request(app)
-        .get("/api/articles?order=badrequest")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
-    test("400: that a GET request with a topic that is not valid returns 400 Bad request", () => {
-      return request(app)
-        .get("/api/articles?topic=badrequest")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
+    describe("limit and page query tests", () => {
+      test("200: that a GET request with a limit query only returns the amount of articles queried", () => {
+        return request(app)
+          .get("/api/articles?limit=10")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles.length).toBe(10);
+          });
+      });
+      test("200: that a GET request with a limit and page query returns the articles that would appear on a second page", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles.length).toBe(5);
+            expect(body.articles[0].article_id).toBe(6);
+            expect(body.articles[1].article_id).toBe(7);
+            expect(body.articles[2].article_id).toBe(8);
+            expect(body.articles[3].article_id).toBe(9);
+            expect(body.articles[4].article_id).toBe(10);
+          });
+      });
+      test("200: that a GET request with a page query only returns the default 10 articles per page", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_id&order=asc&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles.length).toBe(3);
+            expect(body.articles[0].article_id).toBe(11);
+            expect(body.articles[1].article_id).toBe(12);
+            expect(body.articles[2].article_id).toBe(13);
+          });
+      });
+      test("400: that a GET request with a limit that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles?limit=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+      test("400: that a GET request with a p that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles?p=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
     });
   });
   describe("GET /api/articles/:article_id/comments", () => {
-    test("that a GET request to /api/articles/:article_id/comments returns an array of comments from the given article_id", () => {
-      return request(app)
-        .get("/api/articles/1/comments")
-        .expect(200)
-        .then(({ body }) => {
-          body.comments.forEach((comment) => {
-            expect(comment).toHaveProperty("comment_id", expect.any(Number));
-            expect(comment).toHaveProperty("votes", expect.any(Number));
-            expect(comment).toHaveProperty("created_at", expect.any(String));
-            expect(comment).toHaveProperty("author", expect.any(String));
-            expect(comment).toHaveProperty("body", expect.any(String));
-            expect(comment).toHaveProperty("article_id", 1);
+    describe("default behavior tests", () => {
+      test("that a GET request to /api/articles/:article_id/comments returns an array of comments from the given article_id", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            body.comments.forEach((comment) => {
+              expect(comment).toHaveProperty("comment_id", expect.any(Number));
+              expect(comment).toHaveProperty("votes", expect.any(Number));
+              expect(comment).toHaveProperty("created_at", expect.any(String));
+              expect(comment).toHaveProperty("author", expect.any(String));
+              expect(comment).toHaveProperty("body", expect.any(String));
+              expect(comment).toHaveProperty("article_id", 1);
+            });
           });
-        });
-    });
-
-    test("that the comments are ordered by created_at by default in descending order", () => {
-      return request(app)
-        .get("/api/articles/1/comments")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.comments).toBeSortedBy("created_at", {
-            descending: true,
+      });
+      test("that the comments are ordered by created_at by default in descending order", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).toBeSortedBy("created_at", {
+              descending: true,
+            });
           });
-        });
+      });
+      test("that a GET request to /api/articles/:article_id/comments with a correct id that does not have any comments returns an empty array", () => {
+        return request(app)
+          .get("/api/articles/7/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).toEqual([]);
+          });
+      });
+      test("that a GET request to /api/articles/:article_id/comments with a incorrect id type responds with a 400 Bad Request", () => {
+        return request(app)
+          .get("/api/articles/badrequest/comments")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
     });
-    test("that a GET request to /api/articles/:article_id/comments with a correct id that does not have any comments returns an empty array", () => {
-      return request(app)
-        .get("/api/articles/7/comments")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.comments).toEqual([]);
-        });
-    });
-    test("that a GET request to /api/articles/:article_id/comments with a incorrect id type responds with a 400 Bad Request", () => {
-      return request(app)
-        .get("/api/articles/badrequest/comments")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
+    describe("limit and page query tests", () => {
+      test("200: a GET request with a limit query only returns the correct amount of comments", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=5")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments.length).toBe(5);
+          });
+      });
+      test("200: a GET request with a limit and pages query returns the correct comments on page 2", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=5&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments.length).toBe(5);
+            expect(body.comments[0].comment_id).toBe(8);
+            expect(body.comments[1].comment_id).toBe(6);
+            expect(body.comments[2].comment_id).toBe(12);
+            expect(body.comments[3].comment_id).toBe(3);
+            expect(body.comments[4].comment_id).toBe(4);
+            body.comments.forEach((comment) => {
+              expect(comment.article_id).toBe(1);
+            });
+          });
+      });
+      test("200: that a GET request with a page query only returns the default 10 articles per page", () => {
+        return request(app)
+          .get("/api/articles/1/comments?p=2")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments.length).toBe(5);
+          });
+      });
+      test("400: that a GET request with a limit that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+      test("400: that a GET request with a p that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles/1/comments?p=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
     });
   });
   describe("POST /api/articles/:article_id/comments", () => {

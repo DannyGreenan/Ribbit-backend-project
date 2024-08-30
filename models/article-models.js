@@ -17,7 +17,7 @@ exports.articleById = (article_id, comment_count) => {
     });
 };
 
-exports.returnArticles = (sort_by, order, topic) => {
+exports.returnArticles = (sort_by, order, topic, limit, p) => {
   const allowedSortInputs = [
     "title",
     "topic",
@@ -25,7 +25,17 @@ exports.returnArticles = (sort_by, order, topic) => {
     "body",
     "created_at",
     "votes",
+    "article_id",
   ];
+  if (!p) {
+    p = 1;
+  }
+
+  if (!limit) {
+    limit = 10;
+  }
+
+  const startIndex = (Number(p) - 1) * Number(limit);
 
   if (sort_by && !allowedSortInputs.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Bad request" });
@@ -36,6 +46,8 @@ exports.returnArticles = (sort_by, order, topic) => {
     if (order !== "desc" && order !== "asc") {
       return Promise.reject({ status: 400, msg: "Bad request" });
     }
+  } else {
+    order = "desc";
   }
 
   let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`;
@@ -44,7 +56,7 @@ exports.returnArticles = (sort_by, order, topic) => {
 
   if (topic) {
     queryValues.push(topic);
-    queryStr += ` WHERE articles.topic = $1`;
+    queryStr += ` WHERE articles.topic = $${queryValues.length}`;
   }
 
   queryStr += ` GROUP BY articles.article_id`;
@@ -55,26 +67,44 @@ exports.returnArticles = (sort_by, order, topic) => {
     queryStr += ` ORDER BY articles.created_at`;
   }
 
-  if (order) {
-    queryStr += ` ${order.toUpperCase()}`;
-  } else {
-    queryStr += ` DESC`;
-  }
+  queryStr += ` ${order.toUpperCase()}`;
 
-  return db.query(`${queryStr}`, queryValues).then(({ rows }) => {
+  queryStr += ` LIMIT $${queryValues.length + 1} OFFSET $${
+    queryValues.length + 2
+  }`;
+
+  queryValues.push(Number(limit), startIndex);
+
+  return db.query(queryStr, queryValues).then(({ rows }) => {
     return rows;
   });
 };
 
-exports.returnsArticlesComments = (article_id) => {
-  return db
-    .query(
-      `SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, articles.article_id FROM comments JOIN articles ON comments.article_id = articles.article_id WHERE comments.article_id = $1 ORDER BY comments.created_at DESC`,
-      [article_id]
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+exports.returnsArticlesComments = (article_id, limit, p) => {
+  let queryStr = `SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, articles.article_id FROM comments JOIN articles ON comments.article_id = articles.article_id WHERE comments.article_id = $1 ORDER BY comments.created_at DESC`;
+
+  let queryValues = [];
+
+  queryValues.push(article_id);
+
+  if (!p) {
+    p = 1;
+  }
+  if (!limit) {
+    limit = 5;
+  }
+
+  const startIndex = (Number(p) - 1) * Number(limit);
+
+  queryStr += ` LIMIT $${queryValues.length + 1} OFFSET $${
+    queryValues.length + 2
+  }`;
+
+  queryValues.push(Number(limit), startIndex);
+
+  return db.query(queryStr, queryValues).then(({ rows }) => {
+    return rows;
+  });
 };
 
 exports.postNewComment = (article_id, username, body) => {
