@@ -2,7 +2,6 @@ const handleErrors = (err, req, res, next) => {
   if (err.code === "22P02" || err.status === 400 || err.code === "23502") {
     res.status(400).send({ msg: "Bad request" });
   } else if (err.code === "23503") {
-    console.log(err);
     if (
       err.constraint === "comments_author_fkey" ||
       err.constraint === "articles_author_fkey"
