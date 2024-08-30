@@ -1,4 +1,6 @@
 const db = require("../db/connection");
+const format = require("pg-format");
+const { convertTimestampToDate } = require("../db/seeds/utils");
 
 exports.articleById = (article_id, comment_count) => {
   return db
@@ -101,4 +103,28 @@ exports.patchArticleById = (article_id, inc_votes) => {
     .then(({ rows }) => {
       return rows[0];
     });
+};
+
+exports.postNewArticle = (author, title, body, topic, article_img_url) => {
+  const created_at = new Date(Date.now());
+  const votes = 0;
+
+  const queryValues = [
+    title,
+    topic,
+    author,
+    body,
+    created_at,
+    votes,
+    article_img_url,
+  ];
+
+  let queryStr =
+    "INSERT INTO articles (title, topic, author, body, created_at, votes, article_img_url) VALUES (%L) RETURNING *";
+
+  queryStr = format(queryStr, queryValues);
+
+  return db.query(queryStr).then(({ rows }) => {
+    return rows[0];
+  });
 };

@@ -262,7 +262,7 @@ describe("backend API project", () => {
     });
   });
   describe("POST /api/articles/:article_id/comments", () => {
-    test("that a POST request responds with the posted comment", () => {
+    test("201: that a POST request responds with the posted comment", () => {
       return request(app)
         .post("/api/articles/1/comments")
         .send({
@@ -282,7 +282,7 @@ describe("backend API project", () => {
           expect(body.comment).toHaveProperty("created_at", expect.any(String));
         });
     });
-    test("that a POST request with a body that does not contain the correct fields returns 400 Bad request", () => {
+    test("400: that a POST request with a body that does not contain the correct fields returns 400 Bad request", () => {
       return request(app)
         .post("/api/articles/1/comments")
         .send({})
@@ -291,7 +291,7 @@ describe("backend API project", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("that a POST request with a body containing a username that is valid but does not exist returns 404 Not found", () => {
+    test("404 that a POST request with a body containing a username that is valid but does not exist returns 404 User not found", () => {
       return request(app)
         .post("/api/articles/7/comments")
         .send({
@@ -300,10 +300,10 @@ describe("backend API project", () => {
         })
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Article not found");
+          expect(body.msg).toBe("User not found");
         });
     });
-    test("that a POST request to a article that does not exist but is valid returns 404 Article not found", () => {
+    test("404: that a POST request to a article that does not exist but is valid returns 404 Article not found", () => {
       return request(app)
         .post("/api/articles/61/comments")
         .send({
@@ -315,7 +315,7 @@ describe("backend API project", () => {
           expect(body.msg).toBe("Article not found");
         });
     });
-    test("that a POST request to a article that is not a valid input returns 400 Bad request", () => {
+    test("400: that a POST request to a article that is not a valid input returns 400 Bad request", () => {
       return request(app)
         .post("/api/articles/badrequest/comments")
         .send({
@@ -597,6 +597,102 @@ describe("backend API project", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
+  describe("POST /api/articles", () => {
+    test("201: that a POST request with a correct body adds a new article and responds with the newly added article", async () => {
+      await request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "Hello World ! This is my first ever post",
+          body: "I feel like a real hackerman when I code",
+          topic: "paper",
+          article_img_url: "",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(typeof body.article).toBe("object");
+          expect(body.article).toHaveProperty("author", "butter_bridge");
+          expect(body.article).toHaveProperty(
+            "title",
+            "Hello World ! This is my first ever post"
+          );
+          expect(body.article).toHaveProperty("article_id", expect.any(Number));
+          expect(body.article).toHaveProperty(
+            "body",
+            "I feel like a real hackerman when I code"
+          );
+          expect(body.article).toHaveProperty("topic", "paper");
+          expect(body.article).toHaveProperty("created_at", expect.any(String));
+          expect(body.article).toHaveProperty("votes", expect.any(Number));
+          expect(body.article).toHaveProperty(
+            "article_img_url",
+            expect.any(String)
+          );
+        });
+      await request(app)
+        .get("/api/articles/14")
+        .expect(200)
+        .then(({ body }) => {
+          expect(typeof body.article).toBe("object");
+          expect(body.article).toHaveProperty("author", "butter_bridge");
+          expect(body.article).toHaveProperty(
+            "title",
+            "Hello World ! This is my first ever post"
+          );
+          expect(body.article).toHaveProperty("article_id", expect.any(Number));
+          expect(body.article).toHaveProperty(
+            "body",
+            "I feel like a real hackerman when I code"
+          );
+          expect(body.article).toHaveProperty("topic", "paper");
+          expect(body.article).toHaveProperty("created_at", expect.any(String));
+          expect(body.article).toHaveProperty("votes", expect.any(Number));
+          expect(body.article).toHaveProperty(
+            "article_img_url",
+            expect.any(String)
+          );
+        });
+    });
+    test("400: that a POST request with a body that does not contain the correct fields returns 400 Bad request", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("404: that a POST request with a body containing a username that is valid but does not exist returns 404 User not found", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "Sathice",
+          title: "Hello World ! This is my first ever post",
+          body: "I feel like a real hackerman when I code",
+          topic: "paper",
+          article_img_url: "",
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User not found");
+        });
+    });
+    test("404: that a POST request with a body containing a topic that is valid but does not exist returns 404 Topic not found", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "Hello World ! This is my first ever post",
+          body: "I feel like a real hackerman when I code",
+          topic: "BadRequest",
+          article_img_url: "",
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Topic not found");
         });
     });
   });
