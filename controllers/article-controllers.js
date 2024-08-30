@@ -11,7 +11,7 @@ const { getAllTopics } = require("../models/topic-models");
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
 
-  returnsArticlesComments(article_id)
+  returnsArticlesComments(article_id, 100)
     .then((comments) => {
       return comments.length;
     })
@@ -27,7 +27,7 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const { sort_by, order, topic } = req.query;
+  const { sort_by, order, topic, limit, p } = req.query;
 
   getAllTopics()
     .then((topics) => {
@@ -41,7 +41,7 @@ exports.getAllArticles = (req, res, next) => {
       }
     })
     .then(() => {
-      return returnArticles(sort_by, order, topic);
+      return returnArticles(sort_by, order, topic, limit, p);
     })
     .then((articles) => {
       res.status(200).send({ articles });
@@ -53,7 +53,8 @@ exports.getAllArticles = (req, res, next) => {
 
 exports.getArticlesComments = (req, res, next) => {
   const { article_id } = req.params;
-  returnsArticlesComments(article_id)
+  const { limit, p } = req.query;
+  returnsArticlesComments(article_id, limit, p)
     .then((comments) => {
       res.status(200).send({ comments });
     })
