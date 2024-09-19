@@ -806,4 +806,47 @@ describe("backend API project", () => {
         });
     });
   });
+  describe("DELETE /api/articles", () => {
+    test("that a DELETE request responds with a status 204, no content, the article has been deleted and all comments from article", async () => {
+      await request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(typeof body.article).toBe("object");
+          expect(body.article).toHaveProperty("article_id");
+        });
+
+      await request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBe(5);
+        });
+
+      await request(app).delete("/api/articles/1").expect(204);
+      await request(app).get("/api/articles/1").expect(404);
+      await request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toEqual([]);
+        });
+    });
+    test("that a DELETE request that has a valid number but doesn't exist in the table returns 404 Not found", () => {
+      return request(app)
+        .delete("/api/articles/1234")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
+        });
+    });
+    test("that a DELETE request to a article that is not valid returns 400 Bad request", () => {
+      return request(app)
+        .delete("/api/articles/badrequest")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
 });

@@ -8,12 +8,14 @@ const {
   postArticleComment,
   patchArticle,
   postArticle,
+  deleteArticle,
 } = require("../controllers/article-controllers");
 
 router
   .route("/api/articles/:article_id")
   .get(getArticleById)
   .patch(patchArticle)
+  .delete(deleteArticle)
   .all(handleInvalidMethod);
 
 router

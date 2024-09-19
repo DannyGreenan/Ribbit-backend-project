@@ -5,6 +5,7 @@ const {
   postNewComment,
   patchArticleById,
   postNewArticle,
+  deleteArticleById,
 } = require("../models/article-models");
 const { getAllTopics } = require("../models/topic-models");
 
@@ -20,6 +21,17 @@ exports.getArticleById = (req, res, next) => {
     })
     .then((article) => {
       res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.deleteArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  deleteArticleById(article_id)
+    .then(() => {
+      res.sendStatus(204);
     })
     .catch((err) => {
       next(err);

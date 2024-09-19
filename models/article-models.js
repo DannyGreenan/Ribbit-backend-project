@@ -17,6 +17,19 @@ exports.articleById = (article_id, comment_count) => {
     });
 };
 
+exports.deleteArticleById = (article_id) => {
+  return db
+    .query(`DELETE FROM articles WHERE article_id = $1 RETURNING *`, [
+      article_id,
+    ])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      }
+      return `deleted comment ${article_id}`;
+    });
+};
+
 exports.returnArticles = (sort_by, order, topic, limit, p) => {
   const allowedSortInputs = [
     "title",
