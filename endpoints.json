@@ -46,6 +46,10 @@
       "article_img_url": "url link"
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the given article not responding with any body",
+    "exampleResponse": { "msg": "deleted article 'article_id'" }
+  },
   "GET /api/articles/:article_id": {
     "description": "serves a single object of an article by article_id parameter",
     "exampleResponse": {
@@ -61,31 +65,6 @@
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
     }
-  },
-<<<<<<< HEAD
-  {
-  "POST /api/articles": {
-    "description": "posts a new article to the articles table",
-    "exampleBody": {
-          "author": "butter_bridge",
-          "title": "Hello World ! This is my first ever post",
-          "body": "I feel like a real hackerman when I code",
-          "topic": "paper",
-          "article_img_url": "",
-        },
-    "exampleResponse": {
-          "author": "butter_bridge",
-          "title": "Hello World ! This is my first ever post",
-          "body": "I feel like a real hackerman when I code",
-          "topic": "paper",
-          "article_img_url": "",
-        }
-  }
-=======
-  "DELETE /api/articles/:article_id": {
-    "description": "deletes the given article not responding with any body",
-    "exampleResponse": { "msg": "deleted article 'article_id'" }
->>>>>>> 63d3dba (Added endpoint delete article, updated endpoints.json)
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of objects of comments from a article parameter",
