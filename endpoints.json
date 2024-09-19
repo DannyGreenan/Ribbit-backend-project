@@ -46,18 +46,18 @@
   "POST /api/articles": {
     "description": "posts a new article to the articles table",
     "exampleBody": {
-          author: "butter_bridge",
-          title: "Hello World ! This is my first ever post",
-          body: "I feel like a real hackerman when I code",
-          topic: "paper",
-          article_img_url: "",
+          "author": "butter_bridge",
+          "title": "Hello World ! This is my first ever post",
+          "body": "I feel like a real hackerman when I code",
+          "topic": "paper",
+          "article_img_url": "",
         },
     "exampleResponse": {
-          author: "butter_bridge",
-          title: "Hello World ! This is my first ever post",
-          body: "I feel like a real hackerman when I code",
-          topic: "paper",
-          article_img_url: "",
+          "author": "butter_bridge",
+          "title": "Hello World ! This is my first ever post",
+          "body": "I feel like a real hackerman when I code",
+          "topic": "paper",
+          "article_img_url": "",
         }
   }
   },
