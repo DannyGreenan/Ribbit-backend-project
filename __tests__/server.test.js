@@ -225,6 +225,28 @@ describe("backend API project", () => {
           });
       });
     });
+    describe("author query tests", () => {
+      test("200: that a GET request with a author query returns an array of article objects with the correct author", () => {
+        return request(app)
+          .get("/api/articles?author=butter_bridge")
+          .expect(200)
+          .then(({ body }) => {
+            expect(Array.isArray(body.articles)).toBe(true);
+            expect(body.articles.length).toBeGreaterThan(0);
+            body.articles.forEach((article) => {
+              expect(article.author).toBe("butter_bridge");
+            });
+          });
+      });
+      test("400: that a GET request with a author that is not valid returns 400 Bad request", () => {
+        return request(app)
+          .get("/api/articles?author=badrequest")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+    });
     describe("limit and page query tests", () => {
       test("200: that a GET request with a limit query only returns the amount of articles queried", () => {
         return request(app)

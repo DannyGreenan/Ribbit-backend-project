@@ -8,6 +8,7 @@ const {
   deleteArticleById,
 } = require("../models/article-models");
 const { getAllTopics } = require("../models/topic-models");
+const { returnUsers } = require("../models/user-models");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -39,7 +40,7 @@ exports.deleteArticle = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const { sort_by, order, topic, limit, p } = req.query;
+  const { sort_by, order, topic, limit, p, author } = req.query;
 
   getAllTopics()
     .then((topics) => {
@@ -53,7 +54,20 @@ exports.getAllArticles = (req, res, next) => {
       }
     })
     .then(() => {
-      return returnArticles(sort_by, order, topic, limit, p);
+      return returnUsers();
+    })
+    .then((users) => {
+      const foundUser = users.find((userObj) => userObj.username === author);
+      if (author === undefined) {
+        return undefined;
+      } else {
+        if (foundUser) {
+          return foundUser.username;
+        } else return Promise.reject({ status: 400, msg: "Bad request" });
+      }
+    })
+    .then(() => {
+      return returnArticles(sort_by, order, topic, limit, p, author);
     })
     .then((articles) => {
       res.status(200).send({ articles });

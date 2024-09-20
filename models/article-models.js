@@ -30,7 +30,7 @@ exports.deleteArticleById = (article_id) => {
     });
 };
 
-exports.returnArticles = (sort_by, order, topic, limit, p) => {
+exports.returnArticles = (sort_by, order, topic, limit, p, author) => {
   const allowedSortInputs = [
     "title",
     "topic",
@@ -70,6 +70,11 @@ exports.returnArticles = (sort_by, order, topic, limit, p) => {
   if (topic) {
     queryValues.push(topic);
     queryStr += ` WHERE articles.topic = $${queryValues.length}`;
+  }
+
+  if (author) {
+    queryValues.push(author);
+    queryStr += ` WHERE articles.author = $${queryValues.length}`;
   }
 
   queryStr += ` GROUP BY articles.article_id`;
